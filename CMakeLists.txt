@@ -29,11 +29,13 @@ target_include_directories(pruebas_metodos PRIVATE include)
 add_test(NAME pruebas_metodos COMMAND pruebas_metodos)
 
 # ---- Aplicación gráfica (Qt Widgets) ----
-# Solo se construye si Qt5 Widgets está disponible (p. ej. dentro del
-# contenedor Docker, que instala qtbase5-dev en tiempo de build).
-find_package(Qt5 COMPONENTS Widgets QUIET)
-if(Qt5Widgets_FOUND)
-    message(STATUS "Qt5 Widgets encontrado: se construirá metodos_numericos_gui")
+# Se construye si hay Qt5 o Qt6 Widgets disponible (detecta cualquiera de los
+# dos automáticamente, ya que el instalador oficial de Qt hoy ofrece Qt6 por
+# defecto, mientras que Docker/apt suelen traer Qt5).
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets QUIET)
+if(QT_FOUND)
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+    message(STATUS "Qt${QT_VERSION_MAJOR} Widgets encontrado: se construirá metodos_numericos_gui")
     set(CMAKE_AUTOMOC ON)
     # Los headers con Q_OBJECT se listan explícitamente como fuentes: viven en
     # include/ (fuera del directorio de sus .cpp), y AUTOMOC solo los detecta
@@ -51,8 +53,8 @@ if(Qt5Widgets_FOUND)
         ${CORE_SOURCES}
     )
     target_include_directories(metodos_numericos_gui PRIVATE include)
-    target_link_libraries(metodos_numericos_gui PRIVATE Qt5::Widgets)
+    target_link_libraries(metodos_numericos_gui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 else()
-    message(STATUS "Qt5 Widgets no encontrado: no se construirá metodos_numericos_gui "
-                    "(instala qtbase5-dev o compila dentro del contenedor Docker)")
+    message(STATUS "Qt Widgets (5 o 6) no encontrado: no se construirá metodos_numericos_gui "
+                    "(instala Qt o compila dentro del contenedor Docker)")
 endif()

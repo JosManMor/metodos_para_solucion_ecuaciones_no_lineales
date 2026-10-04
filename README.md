@@ -39,17 +39,33 @@ docker build -t metodos-numericos .
 
 ### Ejecutar la GUI
 
-La GUI necesita un servidor X del sistema anfitrión para mostrarse.
+**Opción recomendada — VNC (funciona igual en Linux/Windows/macOS, incluida
+Docker Desktop):** compartir el socket X11 del host con Docker Desktop no
+siempre funciona porque Docker Desktop corre en una VM y ese socket no se
+reenvía de forma fiable (el error típico es `could not connect to display`
+o `Could not load the Qt platform plugin "xcb"`). En vez de pelear con eso,
+la GUI puede servirse por red usando el plugin `vnc` de Qt:
 
-**Linux:**
+```sh
+docker run --rm -p 5900:5900 metodos-numericos ./build/metodos_numericos_gui -platform vnc
+```
+
+Y conéctate con cualquier cliente VNC a `localhost:5900` (sin usuario ni
+contraseña):
+- **Linux:** Remmina (protocolo VNC) u otro cliente VNC.
+- **Windows:** TightVNC Viewer, RealVNC Viewer, o Remmina si usas WSL con GUI.
+- **macOS:** la app "Conexión a pantalla compartida" (Screen Sharing) soporta
+  `vnc://localhost:5900` directamente, o cualquier cliente VNC.
+
+**Alternativa — X11 nativo (solo si tu Docker corre directo sobre Linux, sin
+Docker Desktop):**
 ```sh
 xhost +local:docker
 docker run --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix metodos-numericos
 ```
-
-**Windows (con un servidor X como VcXsrv o WSLg) / macOS (con XQuartz):**
-configura el servidor X para aceptar conexiones y expón su `DISPLAY` de forma
-análoga al comando de Linux (consulta la documentación de tu servidor X).
+Si usas Docker Desktop, antes hay que compartir `/tmp` en *Settings → Resources
+→ File Sharing*; aun así puede fallar por la limitación de sockets de la VM,
+en cuyo caso usa la opción VNC de arriba.
 
 ### Ejecutar solo la consola (no requiere servidor X)
 

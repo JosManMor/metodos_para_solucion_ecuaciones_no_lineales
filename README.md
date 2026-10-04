@@ -92,7 +92,8 @@ make clean    # borra los binarios generados
 ### B.2 — GUI + consola + pruebas, con CMake (requiere Qt5 instalado)
 
 En Ubuntu/Debian: `sudo apt-get install qtbase5-dev qtbase5-dev-tools qt5-qmake cmake pkg-config`.
-En Windows/macOS, ver la sección de instalación de Qt en `diseño_sistema.md`.
+En Windows, ver la guía paso a paso en `docs/compilar_windows.md` (genera un
+`.exe` nativo, con Qt Creator o línea de comandos).
 
 ```sh
 cmake -B build
